@@ -21,7 +21,6 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -53,7 +52,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
             public void onClick(View view) {
                 //only run if we are not gathering data already
                 if(!gatherSensorData) {
-
+                    gatherSensorData = true;
                     username = ((TextView)fragmentView.findViewById(R.id.username)).getText().toString();
 
                     //inform user that he needs to input username before starting tracking
@@ -74,7 +73,6 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            gatherSensorData = true;
                             startCollectionSensorData();
                             setProgressBarAndTimer();
                         }
@@ -137,8 +135,12 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
         gatherSensorData = false;
         mSensorManager.unregisterListener(this);
         try {
-            mFileOutputStream.close();
-        } catch (IOException e) {}
+            if(mFileOutputStream != null) {
+                mFileOutputStream.close();
+            }
+        } catch (Exception e) {
+            mFileOutputStream = null;
+        }
     }
 
 
@@ -152,8 +154,12 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
 
         //try to close the file writer if it is still open
         try {
-            mFileOutputStream.close();
-        } catch (IOException e) {}
+            if(mFileOutputStream != null) {
+                mFileOutputStream.close();
+            }
+        } catch (IOException e) {
+            mFileOutputStream = null;
+        }
     }
 
     @Override

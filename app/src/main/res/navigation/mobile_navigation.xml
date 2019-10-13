@@ -3,16 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@+id/navigation_tracker">
 
     <fragment
-        android:id="@+id/navigation_home"
+        android:id="@+id/navigation_tracker"
         android:name="c.arp.gaitauth.ui.fragments.MovementTrackerFragment"
         android:label="@string/title_track"
         tools:layout="@layout/fragment_movement_tracker" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
+        android:id="@+id/navigation_fingerprint"
         android:name="c.arp.gaitauth.ui.fragments.IdentifyUserFragment"
         android:label="@string/title_identify_user"
         tools:layout="@layout/fragment_identify_user" />
