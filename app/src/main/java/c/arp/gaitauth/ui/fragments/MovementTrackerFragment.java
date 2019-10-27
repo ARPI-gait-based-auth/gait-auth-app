@@ -35,6 +35,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
     private TextView textProgress;
     private String username;
     private Switch saveToDownloads;
+    private Button btnStartMovementTracking;
 
     private SensorManager mSensorManager;
     private Sensor mAccelerometer, mGyroscope;
@@ -49,10 +50,13 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
         textProgress = (TextView) fragmentView.findViewById(R.id.textProgress);
         saveToDownloads = (Switch) fragmentView.findViewById(R.id.switch_save_to_downloads);
 
-        Button btnStartMovementTracking = (Button) fragmentView.findViewById(R.id.buttonStartTracking);
+        btnStartMovementTracking = (Button) fragmentView.findViewById(R.id.buttonStartTracking);
+
         btnStartMovementTracking.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                btnStartMovementTracking.setEnabled(false);
+                btnStartMovementTracking.setAlpha(0.3f);
                 //only run if we are not gathering data already
                 if(!gatherSensorData) {
                     gatherSensorData = true;
@@ -93,7 +97,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
     }
 
     private void setProgressBarAndTimer() {
-        new CountDownTimer(10000, 1000) {
+        new CountDownTimer(60 * 1000, 1000) {
 
             @Override
             public void onTick(long l) {
@@ -104,6 +108,8 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
 
             @Override
             public void onFinish() {
+                btnStartMovementTracking.setEnabled(true);
+                btnStartMovementTracking.setAlpha(1f);
                 Toast.makeText(getActivity(), "Finished gathering data", Toast.LENGTH_SHORT).show();
                 mProgressBar.setProgress(0);
                 textProgress.setText("0");
