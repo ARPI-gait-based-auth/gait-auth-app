@@ -46,14 +46,14 @@
 
             <Button
                 android:id="@+id/buttonStartTracking"
-                android:layout_marginTop="15dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/rounded_button"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
                 android:text="@string/buttonStartTracking"
-                android:textColor="@color/colorPrimaryDark"
-                android:background="@drawable/rounded_button"/>
+                android:textColor="@color/colorPrimaryDark" />
 
         </LinearLayout>
 
