@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +34,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
     private ProgressBar mProgressBar;
     private TextView textProgress;
     private String username;
+    private Switch saveToDownloads;
 
     private SensorManager mSensorManager;
     private Sensor mAccelerometer, mGyroscope;
@@ -45,6 +47,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
 
         mProgressBar = (ProgressBar) fragmentView.findViewById(R.id.progressBar);
         textProgress = (TextView) fragmentView.findViewById(R.id.textProgress);
+        saveToDownloads = (Switch) fragmentView.findViewById(R.id.switch_save_to_downloads);
 
         Button btnStartMovementTracking = (Button) fragmentView.findViewById(R.id.buttonStartTracking);
         btnStartMovementTracking.setOnClickListener(new View.OnClickListener() {
@@ -119,7 +122,14 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
             return;
         }
 
-        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), username + ".txt");
+        File path;
+        if (saveToDownloads.isChecked()) {
+            path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        } else {
+            path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        }
+
+        File file = new File(path, username + ".csv");
         try {
             file.createNewFile();
             mFileOutputStream = new FileOutputStream(file, false);
