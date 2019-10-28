@@ -139,7 +139,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
         try {
             file.createNewFile();
             mFileOutputStream = new FileOutputStream(file, false);
-            mFileOutputStream.write("username;timestamp;accX;accY;accZ\n".getBytes());
+            mFileOutputStream.write("username,timestamp,accX,accY,accZ\n".getBytes());
             mFileOutputStream.flush();
         } catch (Exception e) {
             Toast.makeText(getActivity(), "There was a problem writing to file", Toast.LENGTH_SHORT).show();
@@ -185,7 +185,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
         float y = sensorEvent.values[1];
         float z = sensorEvent.values[2];
 
-        String row = String.format("%s;%d;%f;%f;%f\n", username, timeStamp, x, y, z);
+        String row = String.format("%s,%d,%f,%f,%f\n", username, timeStamp, x, y, z);
 
         try {
             mFileOutputStream.write(row.getBytes());
