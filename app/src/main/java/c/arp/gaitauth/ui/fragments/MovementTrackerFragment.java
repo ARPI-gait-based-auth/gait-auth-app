@@ -26,6 +26,7 @@ import java.io.IOException;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import c.arp.gaitauth.R;
+import c.arp.gaitauth.StaticStore;
 
 public class MovementTrackerFragment extends Fragment implements SensorEventListener {
 
@@ -136,6 +137,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
         }
 
         File file = new File(path, username + ".csv");
+        StaticStore.selectedFile = file.getAbsolutePath();
         try {
             file.createNewFile();
             mFileOutputStream = new FileOutputStream(file, false);
