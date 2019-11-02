@@ -1,5 +1,8 @@
 package c.arp.gaitauth.ui.fragments;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,15 +10,20 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+
 import c.arp.gaitauth.R;
 import c.arp.gaitauth.StaticStore;
 
 import android.os.Bundle;
+
 import com.opencsv.CSVReader;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.FileReader;
+
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.anychart.AnyChart;
@@ -30,32 +38,77 @@ import com.anychart.enums.Anchor;
 import com.anychart.enums.MarkerType;
 import com.anychart.enums.TooltipPositionMode;
 import com.anychart.graphics.vector.Stroke;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class IdentifyUserFragment extends Fragment {
-
+    public static final int PICKFILE_RESULT_CODE = 1;
+    private Button btnSelectFile;
+    private TextView textFile;
     List<DataEntry> seriesData = new ArrayList<>();
+    View root;
+    AnyChartView anyChartView;
+    Set set;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_identify_user, container, false);
+        root = inflater.inflate(R.layout.fragment_identify_user, container, false);
+
+
+        btnSelectFile = (Button) root.findViewById(R.id.select_file);
+        textFile = (TextView) root.findViewById(R.id.text_dashboard_selected_file);
+
+        anyChartView = root.findViewById(R.id.any_chart_view);
+        anyChartView.setProgressBar(root.findViewById(R.id.progress_bar));
+
+        btnSelectFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
+                chooseFile.setType("*/*");
+                chooseFile = Intent.createChooser(chooseFile, "Choose a file");
+                startActivityForResult(chooseFile, PICKFILE_RESULT_CODE);
+            }
+        });
+
+        seriesData.add(new CustomDataEntry("", 0, 0, 0));
         initData();
-        initChart(root);
+        initChart();
+
         return root;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case PICKFILE_RESULT_CODE:
+                if (resultCode == -1) {
+                    Uri fileUri = data.getData();
+                    StaticStore.selectedFile = fileUri.getLastPathSegment().split(":")[1];
+
+                    initData();
+                    set.data(seriesData);
+                }
+                break;
+        }
     }
 
     void initData() {
         if (StaticStore.selectedFile == null) {
             return;
         }
+        textFile.setText(StaticStore.selectedFile);
+        seriesData.removeAll(new ArrayList<>());
         try {
             CSVReader reader = new CSVReader(new FileReader(StaticStore.selectedFile));
             String[] nextLine;
             int c = -1;
             while ((nextLine = reader.readNext()) != null) {
-                if (c == -1) { c++; continue; }
-                // nextLine[] is an array of values from the line
-                System.out.println(nextLine[0] + nextLine[1] + "etc...");
+                if (c == -1) {
+                    c++;
+                    continue;
+                }
+
                 String id = nextLine[0];
                 String time = nextLine[1];
                 float x = Float.parseFloat(nextLine[2]);
@@ -70,10 +123,7 @@ public class IdentifyUserFragment extends Fragment {
 
     }
 
-    void initChart(View fragmentView ) {
-        AnyChartView anyChartView = fragmentView.findViewById(R.id.any_chart_view);
-        anyChartView.setProgressBar(fragmentView.findViewById(R.id.progress_bar));
-
+    void initChart() {
         Cartesian cartesian = AnyChart.line();
 
         cartesian.animation(true);
@@ -94,8 +144,8 @@ public class IdentifyUserFragment extends Fragment {
         cartesian.xAxis(0).labels().padding(5d, 5d, 5d, 5d);
 
 
+        set = Set.instantiate();
 
-        Set set = Set.instantiate();
         set.data(seriesData);
         Mapping series1Mapping = set.mapAs("{ x: 'x', value: 'value' }");
         Mapping series2Mapping = set.mapAs("{ x: 'x', value: 'value2' }");
