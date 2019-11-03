@@ -22,6 +22,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Date;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -31,6 +32,7 @@ import c.arp.gaitauth.StaticStore;
 public class MovementTrackerFragment extends Fragment implements SensorEventListener {
 
     private static boolean gatherSensorData = false;
+    private int index = 0;
 
     private ProgressBar mProgressBar;
     private TextView textProgress;
@@ -60,6 +62,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
                 btnStartMovementTracking.setAlpha(0.3f);
                 //only run if we are not gathering data already
                 if(!gatherSensorData) {
+                    index = 0;
                     gatherSensorData = true;
                     username = ((TextView)fragmentView.findViewById(R.id.username)).getText().toString();
 
@@ -141,7 +144,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
         try {
             file.createNewFile();
             mFileOutputStream = new FileOutputStream(file, false);
-            mFileOutputStream.write("username,timestamp,accX,accY,accZ\n".getBytes());
+            mFileOutputStream.write(",timestamp,accX,accY,accZ,username\n".getBytes());
             mFileOutputStream.flush();
         } catch (Exception e) {
             Toast.makeText(getActivity(), "There was a problem writing to file", Toast.LENGTH_SHORT).show();
@@ -182,13 +185,13 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        long timeStamp = sensorEvent.timestamp;
+        long timeStamp = (new Date()).getTime() + (sensorEvent.timestamp - System.nanoTime()) / 1000000L;
         float x = sensorEvent.values[0];
         float y = sensorEvent.values[1];
         float z = sensorEvent.values[2];
 
-        String row = String.format("%s,%d,%f,%f,%f\n", username, timeStamp, x, y, z);
-
+        String row = String.format("%d,%d,%f,%f,%f,%s\n", index, timeStamp, x, y, z, username);
+        index++;
         try {
             mFileOutputStream.write(row.getBytes());
         } catch (Exception e) {
