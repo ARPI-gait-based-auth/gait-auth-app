@@ -139,7 +139,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
             path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
         }
 
-        File file = new File(path, username + ".csv");
+        File file = new File(path, username + ".raw.csv");
         StaticStore.selectedFile = file.getAbsolutePath();
         try {
             file.createNewFile();

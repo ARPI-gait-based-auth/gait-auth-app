@@ -1,6 +1,5 @@
 package c.arp.gaitauth.ui.fragments;
 
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,25 +10,17 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import c.arp.gaitauth.Preprocessor.CustomDataEntry;
+import c.arp.gaitauth.Preprocessor.Preprocessor;
 import c.arp.gaitauth.R;
 import c.arp.gaitauth.StaticStore;
 
-import android.os.Bundle;
-
-import com.opencsv.CSVReader;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.FileReader;
-
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.anychart.AnyChart;
 import com.anychart.AnyChartView;
 import com.anychart.chart.common.dataentry.DataEntry;
-import com.anychart.chart.common.dataentry.ValueDataEntry;
 import com.anychart.charts.Cartesian;
 import com.anychart.core.cartesian.series.Line;
 import com.anychart.data.Mapping;
@@ -99,28 +90,9 @@ public class IdentifyUserFragment extends Fragment {
         }
         textFile.setText(StaticStore.selectedFile);
         seriesData.removeAll(new ArrayList<>());
-        try {
-            CSVReader reader = new CSVReader(new FileReader(StaticStore.selectedFile));
-            String[] nextLine;
-            int c = -1;
-            while ((nextLine = reader.readNext()) != null) {
-                if (c == -1) {
-                    c++;
-                    continue;
-                }
 
-                String id = nextLine[0];
-                String time = nextLine[1];
-                float x = Float.parseFloat(nextLine[2]);
-                float y = Float.parseFloat(nextLine[3]);
-                float z = Float.parseFloat(nextLine[4]);
-                seriesData.add(new CustomDataEntry((c++) + "", x, y, z));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(getActivity(), "The specified file was not found", Toast.LENGTH_SHORT).show();
-        }
-
+        Preprocessor p = new Preprocessor(StaticStore.selectedFile);
+        p.data.setToSeriesData(seriesData);
     }
 
     void initChart() {
@@ -192,15 +164,5 @@ public class IdentifyUserFragment extends Fragment {
         cartesian.legend().padding(0d, 0d, 10d, 0d);
 
         anyChartView.setChart(cartesian);
-    }
-
-    private class CustomDataEntry extends ValueDataEntry {
-
-        CustomDataEntry(String x, Number value, Number value2, Number value3) {
-            super(x, value);
-            setValue("value2", value2);
-            setValue("value3", value3);
-        }
-
     }
 }
