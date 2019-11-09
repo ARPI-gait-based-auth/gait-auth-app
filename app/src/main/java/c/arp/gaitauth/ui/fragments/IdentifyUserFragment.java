@@ -23,6 +23,7 @@ import com.anychart.AnyChartView;
 import com.anychart.chart.common.dataentry.DataEntry;
 import com.anychart.charts.Cartesian;
 import com.anychart.core.cartesian.series.Line;
+import com.anychart.core.utils.OrdinalZoom;
 import com.anychart.data.Mapping;
 import com.anychart.data.Set;
 import com.anychart.enums.Anchor;
@@ -92,15 +93,25 @@ public class IdentifyUserFragment extends Fragment {
         seriesData.removeAll(new ArrayList<>());
 
         Preprocessor p = new Preprocessor(StaticStore.selectedFile);
+        p.data.resample();
         p.data.setToSeriesData(seriesData);
     }
 
     void initChart() {
         Cartesian cartesian = AnyChart.line();
 
+        cartesian.xScroller(true);
+
+        OrdinalZoom xZoom = cartesian.xZoom();
+
+        xZoom.setToPointsCount(6, false, null);
+
+        xZoom.getStartRatio();
+        xZoom.getEndRatio();
+
         cartesian.animation(true);
 
-        cartesian.padding(10d, 20d, 5d, 20d);
+        cartesian.padding(10d, 20d, 20d, 20d);
 
         cartesian.crosshair().enabled(true);
         cartesian.crosshair()

@@ -55,12 +55,18 @@ public class Preprocessor {
                     c++;
                     continue;
                 }
-
+                c++;
+                if (c < 50) {
+                    continue;
+                }
+                if (c > 150) {
+                    continue;
+                }
                 String index = nextLine[0];
                 this.data.time.add(Long.parseLong(nextLine[1]));
-                this.data.x.add(Float.parseFloat(nextLine[2]));
-                this.data.y.add(Float.parseFloat(nextLine[3]));
-                this.data.z.add(Float.parseFloat(nextLine[4]));
+                this.data.x.add(Double.parseDouble(nextLine[2]));
+                this.data.y.add(Double.parseDouble(nextLine[3]));
+                this.data.z.add(Double.parseDouble(nextLine[4]));
                 this.username = nextLine[5];
             }
         } catch (Exception e) {
