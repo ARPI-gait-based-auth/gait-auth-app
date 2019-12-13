@@ -55,8 +55,8 @@
                 android:id="@+id/sb_record_time"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:max="300"
-                android:progress="60" />
+                android:max="299"
+                android:progress="59" />
 
             <Button
                 android:id="@+id/buttonStartTracking"

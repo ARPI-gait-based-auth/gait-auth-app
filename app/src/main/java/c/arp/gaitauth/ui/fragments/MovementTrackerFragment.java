@@ -63,7 +63,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
         sbRecordTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                recordTime = progress;
+                recordTime = progress + 1;
                 textProgress.setText(String.valueOf(recordTime));
             }
 
