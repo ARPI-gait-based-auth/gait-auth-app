@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -190,7 +191,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
         float y = sensorEvent.values[1];
         float z = sensorEvent.values[2];
 
-        String row = String.format("%d,%d,%f,%f,%f,%s\n", index, timeStamp, x, y, z, username);
+        String row = String.format(Locale.US, "%d,%d,%f,%f,%f,%s\n", index, timeStamp, x, y, z, username);
         index++;
         try {
             mFileOutputStream.write(row.getBytes());
