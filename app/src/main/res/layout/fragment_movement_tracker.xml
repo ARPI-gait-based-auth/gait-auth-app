@@ -44,6 +44,20 @@
                 android:layout_height="wrap_content"
                 android:text="If off it will be saved to SD card." />
 
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Record time [s]" />
+
+            <SeekBar
+                android:id="@+id/sb_record_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="300"
+                android:progress="60" />
+
             <Button
                 android:id="@+id/buttonStartTracking"
                 android:layout_width="wrap_content"

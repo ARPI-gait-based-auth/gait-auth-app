@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,12 +35,14 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
 
     private static boolean gatherSensorData = false;
     private int index = 0;
+    int recordTime = 30;
 
     private ProgressBar mProgressBar;
     private TextView textProgress;
     private String username;
     private Switch saveToDownloads;
     private Button btnStartMovementTracking;
+    private SeekBar sbRecordTime;
 
     private SensorManager mSensorManager;
     private Sensor mAccelerometer, mGyroscope;
@@ -50,11 +53,30 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View fragmentView = inflater.inflate(R.layout.fragment_movement_tracker, container, false);
 
+        sbRecordTime = (SeekBar) fragmentView.findViewById(R.id.sb_record_time);
         mProgressBar = (ProgressBar) fragmentView.findViewById(R.id.progressBar);
         textProgress = (TextView) fragmentView.findViewById(R.id.textProgress);
         saveToDownloads = (Switch) fragmentView.findViewById(R.id.switch_save_to_downloads);
 
         btnStartMovementTracking = (Button) fragmentView.findViewById(R.id.buttonStartTracking);
+
+        sbRecordTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                recordTime = progress;
+                textProgress.setText(String.valueOf(recordTime));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         btnStartMovementTracking.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,7 +124,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
     }
 
     private void setProgressBarAndTimer() {
-        new CountDownTimer(60 * 1000, 1000) {
+        new CountDownTimer(recordTime * 1000, 1000) {
 
             @Override
             public void onTick(long l) {
