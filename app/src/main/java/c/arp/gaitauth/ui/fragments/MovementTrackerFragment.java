@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,18 +21,40 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import c.arp.gaitauth.R;
 import c.arp.gaitauth.StaticStore;
 
 public class MovementTrackerFragment extends Fragment implements SensorEventListener {
+
+    public static final String API_KEY = "";
+
 
     private static boolean gatherSensorData = false;
     private int index = 0;
@@ -40,6 +63,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
     private ProgressBar mProgressBar;
     private TextView textProgress;
     private String username;
+    private StringBuilder csvData;
     private Switch saveToDownloads;
     private Button btnStartMovementTracking;
     private SeekBar sbRecordTime;
@@ -84,13 +108,13 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
                 btnStartMovementTracking.setEnabled(false);
                 btnStartMovementTracking.setAlpha(0.3f);
                 //only run if we are not gathering data already
-                if(!gatherSensorData) {
+                if (!gatherSensorData) {
                     index = 0;
                     gatherSensorData = true;
-                    username = ((TextView)fragmentView.findViewById(R.id.username)).getText().toString();
+                    username = ((TextView) fragmentView.findViewById(R.id.username)).getText().toString();
 
                     //inform user that he needs to input username before starting tracking
-                    if("".equals(username)) {
+                    if ("".equals(username)) {
                         Toast.makeText(getActivity(), "You did not enter the username", Toast.LENGTH_SHORT).show();
                         Toast.makeText(getActivity(), getContext().getFilesDir().toString(), Toast.LENGTH_SHORT).show();
 
@@ -128,7 +152,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
 
             @Override
             public void onTick(long l) {
-                int remainingSeconds = (int) l/1000;
+                int remainingSeconds = (int) l / 1000;
                 mProgressBar.setProgress(remainingSeconds);
                 textProgress.setText(String.valueOf(remainingSeconds));
             }
@@ -164,6 +188,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
 
         File file = new File(path, username + ".raw.csv");
         StaticStore.selectedFile = file.getAbsolutePath();
+        csvData = new StringBuilder();
         try {
             file.createNewFile();
             mFileOutputStream = new FileOutputStream(file, false);
@@ -179,12 +204,20 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
         gatherSensorData = false;
         mSensorManager.unregisterListener(this);
         try {
-            if(mFileOutputStream != null) {
+            if (mFileOutputStream != null) {
                 mFileOutputStream.close();
             }
         } catch (Exception e) {
             mFileOutputStream = null;
         }
+        try {
+            String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+
+            this.sendRecord(username, timeStamp, csvData.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        csvData = new StringBuilder();
     }
 
 
@@ -198,7 +231,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
 
         //try to close the file writer if it is still open
         try {
-            if(mFileOutputStream != null) {
+            if (mFileOutputStream != null) {
                 mFileOutputStream.close();
             }
         } catch (IOException e) {
@@ -214,6 +247,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
         float z = sensorEvent.values[2];
 
         String row = String.format(Locale.US, "%d,%d,%f,%f,%f,%s\n", index, timeStamp, x, y, z, username);
+        csvData.append(row);
         index++;
         try {
             mFileOutputStream.write(row.getBytes());
@@ -226,5 +260,30 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
         //do nothing in this case
+    }
+
+    public void sendRecord(final String name, final String key, final String data) throws JSONException {
+        String url = "https://gait.modri.si/" + API_KEY + "/record/" + name + "/" + key;
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("csv", data);
+        JsonObjectRequest jsonobj = new JsonObjectRequest(Request.Method.POST, url, new JSONObject(params),
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        if(response != null){
+                            Toast.makeText(getActivity(), "Response OK" , Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        if(error != null){
+                            Toast.makeText(getActivity(), "POST FAIL", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+        ){};
+        StaticStore.requstQueue.add(jsonobj);
     }
 }
