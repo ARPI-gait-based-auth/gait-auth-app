@@ -26,7 +26,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        StaticStore.requstQueue = Volley.newRequestQueue(this.getApplicationContext());
+
+        if (Api.requstQueue == null)
+            Api.requstQueue = Volley.newRequestQueue(this.getApplicationContext());
 
 
         setContentView(R.layout.activity_main);
@@ -73,12 +75,12 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.super.onBackPressed();
             }
         })
-        .setNegativeButton(R.string.cancle_action, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                dialog.dismiss();
-            }
-        });
+                .setNegativeButton(R.string.cancle_action, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        dialog.dismiss();
+                    }
+                });
         builder.create();
         builder.show();
     }

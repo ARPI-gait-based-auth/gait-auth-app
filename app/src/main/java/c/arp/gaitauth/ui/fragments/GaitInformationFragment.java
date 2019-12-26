@@ -41,14 +41,13 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
+import c.arp.gaitauth.Api;
 import c.arp.gaitauth.R;
-import c.arp.gaitauth.StaticStore;
 
 public class GaitInformationFragment extends Fragment implements SensorEventListener {
-    public static final String API_KEY = c.arp.gaitauth.BuildConfig.apikey;
+
 
     private static boolean gatherSensorData = false;
     private int index = 0;
@@ -236,12 +235,9 @@ public class GaitInformationFragment extends Fragment implements SensorEventList
             mFileOutputStream = null;
         }
 
-        try {
-            String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-            this.sendRecord(username, timeStamp, csvData.toString());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        Api.sendRecord(username, timeStamp, csvData.toString(), getActivity());
+
         csvData = new StringBuilder();
     }
 
@@ -289,31 +285,5 @@ public class GaitInformationFragment extends Fragment implements SensorEventList
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
         //do nothing in this case
-    }
-
-    public void sendRecord(final String name, final String key, final String data) throws JSONException {
-        String url = "https://gait.modri.si/" + API_KEY + "/record/" + name + "/" + key;
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put("csv", data);
-        JsonObjectRequest jsonobj = new JsonObjectRequest(Request.Method.POST, url, new JSONObject(params),
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        if (response != null) {
-                            Toast.makeText(getActivity(), "Record successfully uploaded.", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        if (error != null) {
-                            Toast.makeText(getActivity(), "Record upload failed. Please notify developer.", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }
-        ) {
-        };
-        StaticStore.requstQueue.add(jsonobj);
     }
 }
