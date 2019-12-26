@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -57,7 +58,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
     private StringBuilder csvData;
     private Switch saveToDownloads;
     private Button btnStartMovementTracking;
-    private SeekBar sbRecordTime;
+    private EditText recordTimeEditText;
 
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
@@ -67,30 +68,12 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View fragmentView = inflater.inflate(R.layout.fragment_movement_tracker, container, false);
 
-        sbRecordTime = (SeekBar) fragmentView.findViewById(R.id.sb_record_time);
+        recordTimeEditText = (EditText) fragmentView.findViewById(R.id.recordTimeEditText);
         mProgressBar = (ProgressBar) fragmentView.findViewById(R.id.progressBar);
         textProgress = (TextView) fragmentView.findViewById(R.id.textProgress);
         saveToDownloads = (Switch) fragmentView.findViewById(R.id.switch_save_to_downloads);
 
         btnStartMovementTracking = (Button) fragmentView.findViewById(R.id.buttonStartTracking);
-
-        sbRecordTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                recordTime = progress + 1;
-                textProgress.setText(String.valueOf(recordTime));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
 
         btnStartMovementTracking.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,6 +117,10 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
         mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
+        //setup the edit text and progress text
+        recordTimeEditText.setVisibility(View.VISIBLE);
+        textProgress.setVisibility(View.GONE);
+
 
         BottomNavigationView bottomNavigationView = getActivity().getWindow().getDecorView().findViewById(R.id.nav_view);
         bottomNavigationView.setVisibility(View.VISIBLE);
@@ -142,6 +129,10 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
     }
 
     private void setProgressBarAndTimer() {
+        recordTime = Integer.parseInt(recordTimeEditText.getText().toString());
+        textProgress.setVisibility(View.VISIBLE);
+        recordTimeEditText.setVisibility(View.GONE);
+
         new CountDownTimer(recordTime * 1000, 1000) {
 
             @Override
@@ -208,6 +199,8 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
 
     private void stopCollectionSensorData() {
         gatherSensorData = false;
+        recordTimeEditText.setVisibility(View.VISIBLE);
+        textProgress.setVisibility(View.GONE);
 
         try {
             mSensorManager.unregisterListener(this);

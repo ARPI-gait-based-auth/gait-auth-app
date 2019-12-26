@@ -44,20 +44,6 @@
                 android:layout_height="wrap_content"
                 android:text="If off it will be saved to SD card." />
 
-            <TextView
-                android:id="@+id/textView2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Record time [s]" />
-
-            <SeekBar
-                android:id="@+id/sb_record_time"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="299"
-                android:progress="59" />
-
             <Button
                 android:id="@+id/buttonStartTracking"
                 android:layout_width="wrap_content"
@@ -98,7 +84,23 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="60"
                 android:textSize="25sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:visibility="gone"/>
+
+            <EditText
+                android:id="@+id/recordTimeEditText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLength="3"
+                android:layout_alignBottom="@+id/progressBar"
+                android:layout_centerInParent="true"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="60"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                android:visibility="gone"/>
+
         </RelativeLayout>
 
         <TextView
