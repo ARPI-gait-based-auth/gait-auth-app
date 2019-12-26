@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation_secret_page"
+        android:icon="@drawable/ic_security"
+        android:title="@string/secure_page" />
 
     <item
         android:id="@+id/navigation_tracker"
         android:icon="@drawable/ic_tracker"
         android:title="@string/title_track" />
-
-    <item
-        android:id="@+id/navigation_fingerprint"
-        android:icon="@drawable/ic_fingerprint"
-        android:title="@string/title_identify_user" />
 </menu>

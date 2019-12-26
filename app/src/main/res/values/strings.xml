@@ -1,10 +1,22 @@
 <resources>
     <string name="app_name">GaitAuth</string>
-    <string name="title_track">Movement tracker</string>
-    <string name="title_identify_user">Identify user</string>
+    <string name="title_track">Gait information</string>
+    <string name="secure_page">Secure page</string>
     <string name="label_username">Username:</string>
     <string name="buttonStartTracking">Start tracking</string>
     <string name="additionalInformation">* After pressing the button put your phone in your pants pocket. The app will start collecting the data 5 seconds after pressing the button. The data collection will take 60 seconds and you will be informed when it\'s done since the phone will vibrate.</string>
     <string name="noFileSelected">No file selected.</string>
     <string name="selectFile">Select file</string>
+    <string name="identify_user_button">Unlock using gait</string>
+    <string name="unlock_with_pin">Unlock with PIN</string>
+    <string name="submit_action">Submit</string>
+    <string name="cancle_action">Cancel</string>
+    <string name="input_pin_text">Input your PIN to unlock the data.</string>
+    <string name="title_secret_page">Secret page</string>
+    <string name="ok">OK</string>
+    <string name="wrong_authentication">Wrong authentication values. Please try again.</string>
+    <string name="first_run">first_run</string>
+    <string name="warning_first_use">Because you are using the app for the first time you have to add your gait (walking sample) for later unlocking of the application.</string>
+    <string name="warning_leaving">You are about to exit the application. Are you sure?</string>
+    <string name="super_secret_text">Super secret text</string>
 </resources>
