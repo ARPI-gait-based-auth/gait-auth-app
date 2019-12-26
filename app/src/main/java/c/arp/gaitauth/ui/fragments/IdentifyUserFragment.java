@@ -1,179 +1,126 @@
 package c.arp.gaitauth.ui.fragments;
 
-import android.content.Intent;
-import android.net.Uri;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
-import c.arp.gaitauth.Preprocessor.CustomDataEntry;
-import c.arp.gaitauth.Preprocessor.Preprocessor;
+import androidx.navigation.Navigation;
 import c.arp.gaitauth.R;
-import c.arp.gaitauth.StaticStore;
 
-import android.widget.Button;
-import android.widget.TextView;
-
-import com.anychart.AnyChart;
-import com.anychart.AnyChartView;
-import com.anychart.chart.common.dataentry.DataEntry;
-import com.anychart.charts.Cartesian;
-import com.anychart.core.cartesian.series.Line;
-import com.anychart.core.utils.OrdinalZoom;
-import com.anychart.data.Mapping;
-import com.anychart.data.Set;
-import com.anychart.enums.Anchor;
-import com.anychart.enums.MarkerType;
-import com.anychart.enums.TooltipPositionMode;
-import com.anychart.graphics.vector.Stroke;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class IdentifyUserFragment extends Fragment {
-    public static final int PICKFILE_RESULT_CODE = 1;
-    private Button btnSelectFile;
-    private TextView textFile;
-    List<DataEntry> seriesData = new ArrayList<>();
     View root;
-    AnyChartView anyChartView;
-    Set set;
+    Button unlockWithPinButton, unlockWithGaitButton;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.fragment_identify_user, container, false);
 
-
-        btnSelectFile = (Button) root.findViewById(R.id.select_file);
-        textFile = (TextView) root.findViewById(R.id.text_dashboard_selected_file);
-
-        anyChartView = root.findViewById(R.id.any_chart_view);
-        anyChartView.setProgressBar(root.findViewById(R.id.progress_bar));
-
-        btnSelectFile.setOnClickListener(new View.OnClickListener() {
+        unlockWithPinButton = (Button) root.findViewById(R.id.unlockWithPin);
+        unlockWithPinButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
-                chooseFile.setType("*/*");
-                chooseFile = Intent.createChooser(chooseFile, "Choose a file");
-                startActivityForResult(chooseFile, PICKFILE_RESULT_CODE);
+                openPinDialog();
             }
         });
 
-        seriesData.add(new CustomDataEntry("", 0, 0, 0));
-        initData();
-        initChart();
+        unlockWithGaitButton = (Button) root.findViewById(R.id.identifyUser);
+        unlockWithGaitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                runGaitIdentification();
+            }
+        });
 
         return root;
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case PICKFILE_RESULT_CODE:
-                if (resultCode == -1) {
-                    Uri fileUri = data.getData();
-                    StaticStore.selectedFile = fileUri.getLastPathSegment().split(":")[1];
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-                    initData();
-                    set.data(seriesData);
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        if(sharedPref.getBoolean(getString(R.string.first_run), true)) {
+            openWarningDialog();
+        }
+    }
+
+    private void openPinDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        final View v = inflater.inflate(R.layout.modal_window_pin, null);
+
+        builder.setView(v);
+        builder.setPositiveButton(R.string.submit_action, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    if(((EditText)((Dialog) dialog).findViewById(R.id.PIN)).getText().toString().equals("111111")) {
+                        Navigation.findNavController(getActivity(), R.id.nav_host_fragment).navigate(R.id.navigation_secret_page);
+                    } else {
+                        openErrorDialog();
+                        dialog.dismiss();
+                    }
                 }
-                break;
-        }
+            })
+            .setNegativeButton(R.string.cancle_action, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.dismiss();
+                }
+            });
+        builder.create();
+        builder.show();
     }
 
-    void initData() {
-        if (StaticStore.selectedFile == null) {
-            return;
-        }
-        textFile.setText(StaticStore.selectedFile);
-        seriesData.removeAll(new ArrayList<>());
+    private void openErrorDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        Preprocessor p = new Preprocessor(StaticStore.selectedFile);
-        p.data.resample();
-        p.data.setToSeriesData(seriesData);
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        final View v = inflater.inflate(R.layout.modal_error, null);
+
+        builder.setView(v);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+            }
+        });
+        builder.create();
+        builder.show();
     }
 
-    void initChart() {
-        Cartesian cartesian = AnyChart.line();
+    private void openWarningDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        cartesian.xScroller(true);
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        final View v = inflater.inflate(R.layout.modal_warning, null);
 
-        OrdinalZoom xZoom = cartesian.xZoom();
+        builder.setView(v);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                Navigation.findNavController(getActivity(), R.id.nav_host_fragment).navigate(R.id.navigation_tracker);
+                dialog.dismiss();
+            }
+        });
+        builder.create();
+        builder.show();
+    }
 
-        xZoom.setToPointsCount(6, false, null);
-
-        xZoom.getStartRatio();
-        xZoom.getEndRatio();
-
-        cartesian.animation(true);
-
-        cartesian.padding(10d, 20d, 20d, 20d);
-
-        cartesian.crosshair().enabled(true);
-        cartesian.crosshair()
-                .yLabel(true)
-                // TODO ystroke
-                .yStroke((Stroke) null, null, null, (String) null, (String) null);
-
-        cartesian.tooltip().positionMode(TooltipPositionMode.POINT);
-
-        cartesian.title("Walking");
-
-        cartesian.yAxis(0).title("Acc");
-        cartesian.xAxis(0).labels().padding(5d, 5d, 5d, 5d);
-
-
-        set = Set.instantiate();
-
-        set.data(seriesData);
-        Mapping series1Mapping = set.mapAs("{ x: 'x', value: 'value' }");
-        Mapping series2Mapping = set.mapAs("{ x: 'x', value: 'value2' }");
-        Mapping series3Mapping = set.mapAs("{ x: 'x', value: 'value3' }");
-
-        Line series1 = cartesian.line(series1Mapping);
-        series1.name("X");
-        series1.hovered().markers().enabled(true);
-        series1.hovered().markers()
-                .type(MarkerType.CIRCLE)
-                .size(4d);
-        series1.tooltip()
-                .position("right")
-                .anchor(Anchor.LEFT_CENTER)
-                .offsetX(5d)
-                .offsetY(5d);
-
-        Line series2 = cartesian.line(series2Mapping);
-        series2.name("Y");
-        series2.hovered().markers().enabled(true);
-        series2.hovered().markers()
-                .type(MarkerType.CIRCLE)
-                .size(4d);
-        series2.tooltip()
-                .position("right")
-                .anchor(Anchor.LEFT_CENTER)
-                .offsetX(5d)
-                .offsetY(5d);
-
-        Line series3 = cartesian.line(series3Mapping);
-        series3.name("Z");
-        series3.hovered().markers().enabled(true);
-        series3.hovered().markers()
-                .type(MarkerType.CIRCLE)
-                .size(4d);
-        series3.tooltip()
-                .position("right")
-                .anchor(Anchor.LEFT_CENTER)
-                .offsetX(5d)
-                .offsetY(5d);
-
-        cartesian.legend().enabled(true);
-        cartesian.legend().fontSize(13d);
-        cartesian.legend().padding(0d, 0d, 10d, 0d);
-
-        anyChartView.setChart(cartesian);
+    private void runGaitIdentification() {
+        //TODO
     }
 }

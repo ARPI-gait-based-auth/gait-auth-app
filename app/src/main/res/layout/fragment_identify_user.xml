@@ -10,48 +10,46 @@
         android:orientation="vertical"
         android:weightSum="10">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="2"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/text_dashboard_selected_file"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:text="@string/noFileSelected"
-                android:textAlignment="center"
-                android:textSize="14sp" />
-
-            <Button
-                android:id="@+id/select_file"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/selectFile" />
-        </LinearLayout>
-
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="8">
+            android:layout_weight="7"
+            android:orientation="vertical">
 
-            <com.anychart.AnyChartView
-                android:id="@+id/any_chart_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="0dp"
-                android:background="@android:color/transparent">
+            <ImageView
+                android:layout_width="225dp"
+                android:layout_height="225dp"
+                android:src="@drawable/ic_fingerprint_dark"
+                android:layout_centerInParent="true"
+                android:background="@drawable/circle_shape_larger"/>
 
-                <ProgressBar
-                    android:id="@+id/progress_bar"
-                    android:layout_width="160dp"
-                    android:layout_height="160dp"
-                    android:layout_gravity="center"/>
-            </com.anychart.AnyChartView>
         </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="3"
+            android:layout_gravity="center"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/identifyUser"
+                android:layout_marginEnd="50dp"
+                android:layout_marginStart="50dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_button"
+                android:text="@string/identify_user_button"/>
+
+            <Button
+                android:layout_marginTop="20dp"
+                android:id="@+id/unlockWithPin"
+                android:layout_marginEnd="50dp"
+                android:layout_marginStart="50dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_button"
+                android:text="@string/unlock_with_pin"/>
+        </LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

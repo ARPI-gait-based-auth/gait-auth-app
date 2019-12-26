@@ -1,6 +1,7 @@
 package c.arp.gaitauth.ui.fragments;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -9,7 +10,6 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,14 +21,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,12 +33,10 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,9 +45,7 @@ import c.arp.gaitauth.R;
 import c.arp.gaitauth.StaticStore;
 
 public class MovementTrackerFragment extends Fragment implements SensorEventListener {
-
     public static final String API_KEY = "";
-
 
     private static boolean gatherSensorData = false;
     private int index = 0;
@@ -69,10 +60,9 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
     private SeekBar sbRecordTime;
 
     private SensorManager mSensorManager;
-    private Sensor mAccelerometer, mGyroscope;
+    private Sensor mAccelerometer;
 
     private FileOutputStream mFileOutputStream;
-
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View fragmentView = inflater.inflate(R.layout.fragment_movement_tracker, container, false);
@@ -131,8 +121,9 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            startCollectionSensorData();
-                            setProgressBarAndTimer();
+                            if(startCollectionSensorData()) {
+                                setProgressBarAndTimer();
+                            }
                         }
                     }, 5000);
                 }
@@ -142,7 +133,10 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
         //setup sensor manager and accelerometer and gyroscope
         mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        //mGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+
+
+        BottomNavigationView bottomNavigationView = getActivity().getWindow().getDecorView().findViewById(R.id.nav_view);
+        bottomNavigationView.setVisibility(View.VISIBLE);
 
         return fragmentView;
     }
@@ -164,20 +158,30 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
                 Toast.makeText(getActivity(), "Finished gathering data", Toast.LENGTH_SHORT).show();
                 mProgressBar.setProgress(0);
                 textProgress.setText("0");
+                firstRunCompleted();
                 stopCollectionSensorData();
             }
         }.start();
     }
 
-    private void startCollectionSensorData() {
-        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        //mSensorManager.registerListener(this, mGyroscope, SensorManager.SENSOR_DELAY_NORMAL);
+    private void firstRunCompleted() {
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
 
+        if(!sharedPref.getBoolean(getString(R.string.first_run), true)) {
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putBoolean(getString(R.string.first_run), false);
+            editor.apply();
+        }
+    }
+
+    private boolean startCollectionSensorData() {
         if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             //If it isn't mounted - we can't write into it.
             Toast.makeText(getActivity(), "There is no external storage detected", Toast.LENGTH_SHORT).show();
-            return;
+            return false;
         }
+
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
 
         File path;
         if (saveToDownloads.isChecked()) {
@@ -197,19 +201,23 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
         } catch (Exception e) {
             Toast.makeText(getActivity(), "There was a problem writing to file", Toast.LENGTH_SHORT).show();
             stopCollectionSensorData();
+            return false;
         }
+        return true;
     }
 
     private void stopCollectionSensorData() {
         gatherSensorData = false;
-        mSensorManager.unregisterListener(this);
+
         try {
+            mSensorManager.unregisterListener(this);
             if (mFileOutputStream != null) {
                 mFileOutputStream.close();
             }
         } catch (Exception e) {
             mFileOutputStream = null;
         }
+
         try {
             String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
 
@@ -226,7 +234,11 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
         super.onPause();
 
         //unregister all the sensor before pausing fragment/activity
-        stopCollectionSensorData();
+        mSensorManager.unregisterListener(this);
+
+        if(gatherSensorData) {
+            stopCollectionSensorData();
+        }
         mSensorManager.unregisterListener(this);
 
         //try to close the file writer if it is still open
