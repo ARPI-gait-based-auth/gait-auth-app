@@ -29,25 +29,31 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import c.arp.gaitauth.R;
 import c.arp.gaitauth.StaticStore;
 
 public class GaitInformationFragment extends Fragment implements SensorEventListener {
-    public static final String API_KEY = "";
+    public static final String API_KEY = c.arp.gaitauth.BuildConfig.apikey;
 
     private static boolean gatherSensorData = false;
     private int index = 0;
     private int recordTime = 30;
-    private double vibrationTimer = 2.0/3.0;
+    private double vibrationTimer = 2.0 / 3.0;
 
     private ProgressBar mProgressBar;
     private TextView textProgress;
@@ -102,7 +108,7 @@ public class GaitInformationFragment extends Fragment implements SensorEventList
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            if(startCollectionSensorData()) {
+                            if (startCollectionSensorData()) {
                                 setProgressBarAndTimer();
                             }
                         }
@@ -130,7 +136,7 @@ public class GaitInformationFragment extends Fragment implements SensorEventList
         recordTime = Integer.parseInt(recordTimeEditText.getText().toString());
         textProgress.setVisibility(View.VISIBLE);
         recordTimeEditText.setVisibility(View.GONE);
-        vibrationTimer = 2.0/3.0;
+        vibrationTimer = 2.0 / 3.0;
 
         new CountDownTimer(recordTime * 1000, 1000) {
 
@@ -157,9 +163,9 @@ public class GaitInformationFragment extends Fragment implements SensorEventList
     }
 
     private void vibrateOnThirds(int remainingSeconds) {
-        if(remainingSeconds <  vibrationTimer * recordTime) {
+        if (remainingSeconds < vibrationTimer * recordTime) {
             vibrate(500);
-            vibrationTimer -= 1.0/3.0;
+            vibrationTimer -= 1.0 / 3.0;
         }
     }
 
@@ -177,7 +183,7 @@ public class GaitInformationFragment extends Fragment implements SensorEventList
     private void firstRunCompleted() {
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
 
-        if(!sharedPref.getBoolean(getString(R.string.first_run), true)) {
+        if (!sharedPref.getBoolean(getString(R.string.first_run), true)) {
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putBoolean(getString(R.string.first_run), false);
             editor.apply();
@@ -201,7 +207,7 @@ public class GaitInformationFragment extends Fragment implements SensorEventList
         }
 
         File file = new File(path, username + ".raw.csv");
-        StaticStore.selectedFile = file.getAbsolutePath();
+
         csvData = new StringBuilder();
         try {
             file.createNewFile();
@@ -232,7 +238,6 @@ public class GaitInformationFragment extends Fragment implements SensorEventList
 
         try {
             String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-
             this.sendRecord(username, timeStamp, csvData.toString());
         } catch (JSONException e) {
             e.printStackTrace();
@@ -248,7 +253,7 @@ public class GaitInformationFragment extends Fragment implements SensorEventList
         //unregister all the sensor before pausing fragment/activity
         mSensorManager.unregisterListener(this);
 
-        if(gatherSensorData) {
+        if (gatherSensorData) {
             stopCollectionSensorData();
         }
         mSensorManager.unregisterListener(this);
@@ -287,27 +292,28 @@ public class GaitInformationFragment extends Fragment implements SensorEventList
     }
 
     public void sendRecord(final String name, final String key, final String data) throws JSONException {
-        /*String url = "https://gait.modri.si/" + API_KEY + "/record/" + name + "/" + key;
+        String url = "https://gait.modri.si/" + API_KEY + "/record/" + name + "/" + key;
         HashMap<String, String> params = new HashMap<String, String>();
         params.put("csv", data);
         JsonObjectRequest jsonobj = new JsonObjectRequest(Request.Method.POST, url, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        if(response != null){
-                            Toast.makeText(getActivity(), "Response OK" , Toast.LENGTH_SHORT).show();
+                        if (response != null) {
+                            Toast.makeText(getActivity(), "Record successfully uploaded.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        if(error != null){
-                            Toast.makeText(getActivity(), "POST FAIL", Toast.LENGTH_SHORT).show();
+                        if (error != null) {
+                            Toast.makeText(getActivity(), "Record upload failed. Please notify developer.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
-        ){};
-        StaticStore.requstQueue.add(jsonobj);*/
+        ) {
+        };
+        StaticStore.requstQueue.add(jsonobj);
     }
 }
