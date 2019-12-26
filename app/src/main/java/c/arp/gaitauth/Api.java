@@ -44,4 +44,36 @@ public class Api {
         };
         requstQueue.add(jsonobj);
     }
+
+    /**
+     * Tell if record belongs to given owner.
+     * @param name - potential owner
+     * @param data
+     * @param context
+     */
+    public static void authenticateRecord(final String name, final String data, final Context context) {
+        String url = "https://gait.modri.si/" + API_KEY + "/detect/" + name;
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("csv", data);
+        JsonObjectRequest jsonobj = new JsonObjectRequest(Request.Method.POST, url, new JSONObject(params),
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        if (response != null) {
+                            Toast.makeText(context, "Record successfully uploaded.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        if (error != null) {
+                            Toast.makeText(context, "Record upload failed. Please notify developer.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+        ) {
+        };
+        requstQueue.add(jsonobj);
+    }
 }
