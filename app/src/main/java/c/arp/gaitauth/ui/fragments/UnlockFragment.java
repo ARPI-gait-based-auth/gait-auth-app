@@ -22,7 +22,7 @@ import androidx.navigation.Navigation;
 import c.arp.gaitauth.R;
 
 
-public class IdentifyUserFragment extends Fragment {
+public class UnlockFragment extends Fragment {
     View root;
     Button unlockWithPinButton, unlockWithGaitButton;
 

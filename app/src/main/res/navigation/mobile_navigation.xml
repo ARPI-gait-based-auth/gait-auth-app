@@ -7,13 +7,13 @@
 
     <fragment
         android:id="@+id/navigation_tracker"
-        android:name="c.arp.gaitauth.ui.fragments.MovementTrackerFragment"
+        android:name="c.arp.gaitauth.ui.fragments.GaitInformationFragment"
         android:label="@string/title_track"
         tools:layout="@layout/fragment_movement_tracker" />
 
     <fragment
         android:id="@+id/navigation_fingerprint"
-        android:name="c.arp.gaitauth.ui.fragments.IdentifyUserFragment"
+        android:name="c.arp.gaitauth.ui.fragments.UnlockFragment"
         android:label="@string/app_name"
         tools:layout="@layout/fragment_identify_user" />
 

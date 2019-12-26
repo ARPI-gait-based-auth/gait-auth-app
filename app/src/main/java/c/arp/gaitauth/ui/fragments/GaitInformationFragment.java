@@ -6,10 +6,13 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +20,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,30 +29,25 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import c.arp.gaitauth.R;
 import c.arp.gaitauth.StaticStore;
 
-public class MovementTrackerFragment extends Fragment implements SensorEventListener {
+public class GaitInformationFragment extends Fragment implements SensorEventListener {
     public static final String API_KEY = "";
 
     private static boolean gatherSensorData = false;
     private int index = 0;
-    int recordTime = 30;
+    private int recordTime = 30;
+    private double vibrationTimer = 2.0/3.0;
 
     private ProgressBar mProgressBar;
     private TextView textProgress;
@@ -78,12 +75,9 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
         btnStartMovementTracking.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnStartMovementTracking.setEnabled(false);
-                btnStartMovementTracking.setAlpha(0.3f);
                 //only run if we are not gathering data already
                 if (!gatherSensorData) {
                     index = 0;
-                    gatherSensorData = true;
                     username = ((TextView) fragmentView.findViewById(R.id.username)).getText().toString();
 
                     //inform user that he needs to input username before starting tracking
@@ -93,6 +87,10 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
 
                         return;
                     }
+
+                    gatherSensorData = true;
+                    btnStartMovementTracking.setEnabled(false);
+                    btnStartMovementTracking.setAlpha(0.3f);
 
                     //hide keyboard after pressing the button
                     if (getActivity().getCurrentFocus() != null) {
@@ -132,6 +130,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
         recordTime = Integer.parseInt(recordTimeEditText.getText().toString());
         textProgress.setVisibility(View.VISIBLE);
         recordTimeEditText.setVisibility(View.GONE);
+        vibrationTimer = 2.0/3.0;
 
         new CountDownTimer(recordTime * 1000, 1000) {
 
@@ -140,6 +139,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
                 int remainingSeconds = (int) l / 1000;
                 mProgressBar.setProgress(remainingSeconds);
                 textProgress.setText(String.valueOf(remainingSeconds));
+                vibrateOnThirds(remainingSeconds);
             }
 
             @Override
@@ -149,10 +149,29 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
                 Toast.makeText(getActivity(), "Finished gathering data", Toast.LENGTH_SHORT).show();
                 mProgressBar.setProgress(0);
                 textProgress.setText("0");
+                vibrate(5000);
                 firstRunCompleted();
                 stopCollectionSensorData();
             }
         }.start();
+    }
+
+    private void vibrateOnThirds(int remainingSeconds) {
+        if(remainingSeconds <  vibrationTimer * recordTime) {
+            vibrate(500);
+            vibrationTimer -= 1.0/3.0;
+        }
+    }
+
+    private void vibrate(int timeToVibrate) {
+        Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+        // Vibrate for 500 milliseconds
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            v.vibrate(VibrationEffect.createOneShot(timeToVibrate, VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+            //deprecated in API 26
+            v.vibrate(timeToVibrate);
+        }
     }
 
     private void firstRunCompleted() {
@@ -268,7 +287,7 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
     }
 
     public void sendRecord(final String name, final String key, final String data) throws JSONException {
-        String url = "https://gait.modri.si/" + API_KEY + "/record/" + name + "/" + key;
+        /*String url = "https://gait.modri.si/" + API_KEY + "/record/" + name + "/" + key;
         HashMap<String, String> params = new HashMap<String, String>();
         params.put("csv", data);
         JsonObjectRequest jsonobj = new JsonObjectRequest(Request.Method.POST, url, new JSONObject(params),
@@ -289,6 +308,6 @@ public class MovementTrackerFragment extends Fragment implements SensorEventList
                     }
                 }
         ){};
-        StaticStore.requstQueue.add(jsonobj);
+        StaticStore.requstQueue.add(jsonobj);*/
     }
 }
