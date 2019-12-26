@@ -10,6 +10,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -60,7 +61,14 @@ public class Api {
                     @Override
                     public void onResponse(JSONObject response) {
                         if (response != null) {
-                            Toast.makeText(context, "Record successfully uploaded.", Toast.LENGTH_SHORT).show();
+                            Double authtrust = null;
+                            try {
+                                authtrust = response.getDouble("authtrust");
+                                Toast.makeText(context, "Record auth successful. Auth trust is: " + authtrust, Toast.LENGTH_SHORT).show();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                Toast.makeText(context, "Record auth failed. Please notify developer.", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
                 },
@@ -68,7 +76,7 @@ public class Api {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         if (error != null) {
-                            Toast.makeText(context, "Record upload failed. Please notify developer.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "Record auth failed. Please notify developer.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
