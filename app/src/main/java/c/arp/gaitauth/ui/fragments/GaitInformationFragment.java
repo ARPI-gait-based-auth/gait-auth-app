@@ -35,13 +35,7 @@ import java.util.Locale;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import org.json.JSONObject;
 
 import c.arp.gaitauth.Api;
 import c.arp.gaitauth.R;
@@ -144,7 +138,7 @@ public class GaitInformationFragment extends Fragment implements SensorEventList
                 int remainingSeconds = (int) l / 1000;
                 mProgressBar.setProgress(remainingSeconds);
                 textProgress.setText(String.valueOf(remainingSeconds));
-                vibrateOnThirds(remainingSeconds);
+                //vibrateOnThirds(remainingSeconds);
             }
 
             @Override
@@ -154,7 +148,7 @@ public class GaitInformationFragment extends Fragment implements SensorEventList
                 Toast.makeText(getActivity(), "Finished gathering data", Toast.LENGTH_SHORT).show();
                 mProgressBar.setProgress(0);
                 textProgress.setText("0");
-                vibrate(5000);
+                //vibrate(5000);
                 firstRunCompleted();
                 stopCollectionSensorData();
             }
@@ -182,9 +176,10 @@ public class GaitInformationFragment extends Fragment implements SensorEventList
     private void firstRunCompleted() {
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
 
-        if (!sharedPref.getBoolean(getString(R.string.first_run), true)) {
+        if (sharedPref.getBoolean(getString(R.string.first_run), true)) {
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putBoolean(getString(R.string.first_run), false);
+            editor.putString("username", username);
             editor.apply();
         }
     }

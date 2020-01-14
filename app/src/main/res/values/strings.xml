@@ -19,4 +19,6 @@
     <string name="warning_first_use">Because you are using the app for the first time you have to add your gait (walking sample) for later unlocking of the application.</string>
     <string name="warning_leaving">You are about to exit the application. Are you sure?</string>
     <string name="super_secret_text">Super secret text</string>
+    <string name="username">username</string>
+    <string name="problem_authenticating">There was a problem with the gathering of the authentication. Please try again.</string>
 </resources>
