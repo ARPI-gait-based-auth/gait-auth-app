@@ -63,7 +63,7 @@ public class Api {
                         if (response != null) {
                             Double authtrust = null;
                             try {
-                                authtrust = response.getDouble("authtrust");
+                                authtrust = response.getDouble("authTrust");
                                 Toast.makeText(context, "Record auth successful. Auth trust is: " + authtrust, Toast.LENGTH_SHORT).show();
                             } catch (JSONException e) {
                                 e.printStackTrace();

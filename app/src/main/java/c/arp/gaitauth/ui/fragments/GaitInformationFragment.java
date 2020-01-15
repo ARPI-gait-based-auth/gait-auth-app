@@ -175,13 +175,13 @@ public class GaitInformationFragment extends Fragment implements SensorEventList
 
     private void firstRunCompleted() {
         SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
 
         if (sharedPref.getBoolean(getString(R.string.first_run), true)) {
-            SharedPreferences.Editor editor = sharedPref.edit();
             editor.putBoolean(getString(R.string.first_run), false);
-            editor.putString("username", username);
-            editor.apply();
         }
+        editor.putString("username", username);
+        editor.apply();
     }
 
     private boolean startCollectionSensorData() {
@@ -203,6 +203,7 @@ public class GaitInformationFragment extends Fragment implements SensorEventList
         File file = new File(path, username + ".raw.csv");
 
         csvData = new StringBuilder();
+        csvData.append(",timestamp,accX,accY,accZ,username\n");
         try {
             file.createNewFile();
             mFileOutputStream = new FileOutputStream(file, false);

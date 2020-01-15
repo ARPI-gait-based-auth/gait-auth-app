@@ -69,6 +69,7 @@ public class UnlockFragment extends Fragment implements SensorEventListener {
         unlockWithGaitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                index = 0;
                 runGaitIdentification();
             }
         });
@@ -244,8 +245,7 @@ public class UnlockFragment extends Fragment implements SensorEventListener {
     }
 
     private void startCollectionSensorData() {
-        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
-
+        final UnlockFragment uf = this;
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -254,6 +254,7 @@ public class UnlockFragment extends Fragment implements SensorEventListener {
                 File file = new File(path, username + ".raw.csv");
 
                 csvData = new StringBuilder();
+                csvData.append(",timestamp,accX,accY,accZ,username\n");
                 try {
                     file.createNewFile();
                     mFileOutputStream = new FileOutputStream(file, false);
@@ -264,12 +265,14 @@ public class UnlockFragment extends Fragment implements SensorEventListener {
                     Toast.makeText(getActivity(), "There was a problem writing to file", Toast.LENGTH_SHORT).show();
                     stopCollectionSensorData(false);
                 }
+
+                mSensorManager.registerListener(uf, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
             }
         }, 5000);
     }
 
     private void setTimer() {
-        int recordTime = 5;
+        int recordTime = 10;
 
         new CountDownTimer(recordTime * 1000, 1000) {
 
