@@ -97,6 +97,13 @@ public class GaitInformationFragment extends Fragment implements SensorEventList
                         imm.hideSoftInputFromWindow(fragmentView.getWindowToken(), 0);
                     }
 
+                    if(recordTimeEditText.getText().toString().equals("0")) {
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putString("username", username);
+                        editor.apply();
+                        return;
+                    }
+
                     //after five seconds start gathering data
                     new Handler().postDelayed(new Runnable() {
                         @Override
