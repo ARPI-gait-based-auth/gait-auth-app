@@ -2,6 +2,9 @@ package c.arp.gaitauth;
 
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -14,6 +17,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+
+import androidx.appcompat.app.AlertDialog;
 
 public class Api {
 
@@ -64,6 +69,11 @@ public class Api {
                             Double authtrust = null;
                             try {
                                 authtrust = response.getDouble("authTrust");
+                                if(authtrust >= 0.8) {
+                                    ((MainActivity) context).openGaitSuccessDialog(authtrust);
+                                } else {
+                                    ((MainActivity) context).openGaitErrorDialog();
+                                }
                                 Toast.makeText(context, "Record auth successful. Auth trust is: " + authtrust, Toast.LENGTH_SHORT).show();
                             } catch (JSONException e) {
                                 e.printStackTrace();

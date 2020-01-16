@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 
 import com.android.volley.toolbox.Volley;
@@ -81,6 +82,43 @@ public class MainActivity extends AppCompatActivity {
                         dialog.dismiss();
                     }
                 });
+        builder.create();
+        builder.show();
+    }
+
+
+    public void openGaitErrorDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        LayoutInflater inflater = this.getLayoutInflater();
+        final View v = inflater.inflate(R.layout.modal_gait_error, null);
+
+        builder.setView(v);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+            }
+        });
+        builder.create();
+        builder.show();
+    }
+
+    public void openGaitSuccessDialog(Double acc) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        LayoutInflater inflater = this.getLayoutInflater();
+        final View v = inflater.inflate(R.layout.modal_gait_success, null);
+
+        TextView text = v.findViewById(R.id.success_text);
+        text.setText("Successfully authenticated user with " + Double.toString(acc) + "accuracy.");
+        builder.setView(v);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                Navigation.findNavController(MainActivity.this, R.id.nav_host_fragment).navigate(R.id.navigation_secret_page);
+            }
+        });
         builder.create();
         builder.show();
     }

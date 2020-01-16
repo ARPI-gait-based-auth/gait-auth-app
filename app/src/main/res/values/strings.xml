@@ -21,4 +21,5 @@
     <string name="super_secret_text">Super secret text</string>
     <string name="username">username</string>
     <string name="problem_authenticating">There was a problem with the gathering of the authentication. Please try again.</string>
+    <string name="success_authentication">Successfully authenticated user with</string>
 </resources>
