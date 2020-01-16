@@ -69,7 +69,7 @@ public class Api {
                             Double authtrust = null;
                             try {
                                 authtrust = response.getDouble("authTrust");
-                                if(authtrust >= 0.8) {
+                                if(authtrust >= 0.75) {
                                     ((MainActivity) context).openGaitSuccessDialog(authtrust);
                                 } else {
                                     ((MainActivity) context).openGaitErrorDialog();
