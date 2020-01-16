@@ -98,6 +98,7 @@ public class GaitInformationFragment extends Fragment implements SensorEventList
                     }
 
                     if(recordTimeEditText.getText().toString().equals("0")) {
+                        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPref.edit();
                         editor.putString("username", username);
                         editor.apply();
